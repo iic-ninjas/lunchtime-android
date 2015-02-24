@@ -1,5 +1,6 @@
 package com.iic.lunchtime.models;
 
+import com.google.gson.annotations.SerializedName;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -16,9 +17,11 @@ public class Restaurant {
   private String name;
 
   @DatabaseField(canBeNull = false)
+  @SerializedName("localized_name")
   private String localizedName;
 
   @DatabaseField
+  @SerializedName("logo_url")
   private String logoUrl;
 
   @DatabaseField(canBeNull = false)
