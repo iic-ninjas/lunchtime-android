@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:gravity="center_vertical"
+    >
+
+  <ImageView
+      android:layout_width="75dp"
+      android:layout_height="75dp"
+      android:id="@+id/list_item_restaurant_icon"
+      android:src="@drawable/ic_restaurant_logo_default"
+      android:clickable="true"
+      />
+  <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      >
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Cafe Noir"
+        android:id="@+id/list_item_restaurant_title"
+        android:layout_marginLeft="16dp"
+        />
+  </LinearLayout>
+  <Button
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="I WANT IN!"
+      android:id="@+id/list_item_restaurant_vote_btn"
+      />
+</LinearLayout>
