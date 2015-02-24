@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.LunchFetcher"/>
+        <service android:name=".services.LunchFetcherService"/>
     </application>
 
 </manifest>
