@@ -3,7 +3,7 @@ CREATE TABLE restaurants (
   name TEXT NOT NULL UNIQUE,
   localized_name TEXT NOT NULL,
   logo_url TEXT,
-  string TEXT NOT NULL,
+  street TEXT NOT NULL,
   city TEXT NOT NULL,
   latitude REAL NOT NULL,
   longitude REAL NOT NULL
