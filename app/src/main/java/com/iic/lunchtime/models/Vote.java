@@ -21,4 +21,10 @@ public class Vote {
   @DatabaseField(canBeNull = false, foreign = true)
   private Restaurant restaurant;
 
+  public Vote(int id, Lunch lunch, User user, Restaurant restaurant) {
+    this.id = id;
+    this.lunch = lunch;
+    this.user = user;
+    this.restaurant = restaurant;
+  }
 }

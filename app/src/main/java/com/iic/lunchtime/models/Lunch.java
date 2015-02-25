@@ -1,6 +1,8 @@
 package com.iic.lunchtime.models;
 
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 import java.util.Date;
 
@@ -10,10 +12,25 @@ import java.util.Date;
 @DatabaseTable(tableName = "lunches")
 public class Lunch {
 
+  @ForeignCollectionField
+  ForeignCollection<Vote> votes;
+
   @DatabaseField(id = true)
   private int id;
 
   @DatabaseField(canBeNull = false)
   private Date date;
 
+  public Lunch(int id, Date date) {
+    this.id = id;
+    this.date = date;
+  }
+
+  public Lunch() {
+    // for ORMLITE
+  }
+
+  public void setVotes(ForeignCollection<Vote> votes) {
+    this.votes = votes;
+  }
 }

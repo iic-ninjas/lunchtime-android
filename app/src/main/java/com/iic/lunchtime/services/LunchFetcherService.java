@@ -6,11 +6,10 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.iic.lunchtime.api.LunchtimeAPI;
+import com.iic.lunchtime.converters.RestaurantConverter;
 import com.iic.lunchtime.dal.LunchtimeDBHelper;
-import com.iic.lunchtime.models.Lunch;
 import com.iic.lunchtime.models.Restaurant;
 import com.iic.lunchtime.serializers.DateDeserializer;
-import com.iic.lunchtime.serializers.RestaurantDeserializer;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.misc.TransactionManager;
@@ -34,25 +33,29 @@ public class LunchFetcherService extends IntentService {
 
   private LunchtimeAPI api;
 
+  private RestaurantConverter restaurantConverter;
+
   /**
    * Creates an IntentService.  Invoked by your subclass's constructor.
    */
   public LunchFetcherService() {
     super(SERVICE_NAME);
     createAPIClient();
+    createConverters();
   }
 
   @Override
   protected void onHandleIntent(Intent intent) {
     fetchRestaurnts();
-    //fetchLunch(intent.getStringExtra(EXTRA_LUNCH_DATE));
+    fetchLunch(intent.getStringExtra(EXTRA_LUNCH_DATE));
+  }
+
+  private void createConverters() {
+    this.restaurantConverter = new RestaurantConverter();
   }
 
   private void createAPIClient() {
-    Gson gson = new GsonBuilder().
-        registerTypeAdapter(Restaurant.class, new RestaurantDeserializer()).
-        registerTypeAdapter(Date.class, new DateDeserializer()).
-        create();
+    Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateDeserializer()).create();
     RestAdapter restAdapter = new RestAdapter.Builder().
         setEndpoint(LunchtimeAPI.API_BASE).
         setConverter(new GsonConverter(gson)).
@@ -63,12 +66,13 @@ public class LunchFetcherService extends IntentService {
 
   private void fetchLunch(String date) {
     if (date.equals("today")) {
-      Lunch lunch = api.getTodayLunch();
+      LunchtimeAPI.Models.Lunch lunch = api.getTodayLunch();
+      Log.d(LOG_TAG, "Finished fetching lunch");
     }
   }
 
   private void fetchRestaurnts() {
-    final List<Restaurant> restaurants = api.getRestaurants();
+    final List<LunchtimeAPI.Models.Restaurant> restaurants = api.getRestaurants();
     final LunchtimeDBHelper dbHelper = OpenHelperManager.getHelper(getBaseContext(), LunchtimeDBHelper.class);
 
     try {
@@ -77,8 +81,8 @@ public class LunchFetcherService extends IntentService {
         @Override
         public Void call() throws Exception {
           RuntimeExceptionDao<Restaurant, ?> dao = dbHelper.getRuntimeExceptionDao(Restaurant.class);
-          for (Restaurant restaurant : restaurants) {
-            dao.createIfNotExists(restaurant);
+          for (LunchtimeAPI.Models.Restaurant restaurant : restaurants) {
+            dao.createIfNotExists(restaurantConverter.toDatabaseModel(restaurant));
           }
 
           Log.d(LOG_TAG, "Finished importing " + restaurants.size() + " restaurants");

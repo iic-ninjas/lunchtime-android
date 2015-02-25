@@ -24,4 +24,16 @@ public class User {
   @DatabaseField
   private String avatarUrl;
 
+  public User(int id, String firstName, String lastName, String email, String avatarUrl) {
+    this.id = id;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.avatarUrl = avatarUrl;
+  }
+
+  public User() {
+    // needed for ORMLite
+  }
+
 }
