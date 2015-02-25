@@ -9,8 +9,8 @@ import com.iic.lunchtime.models.Restaurant;
 public class RestaurantConverter implements Converter<LunchtimeAPI.Models.Restaurant, Restaurant> {
   @Override
   public Restaurant toDatabaseModel(LunchtimeAPI.Models.Restaurant apiModel) {
-    return new Restaurant(apiModel.id, apiModel.name, apiModel.localized_name,
-        apiModel.logo_url, apiModel.street, apiModel.city, apiModel.latitude, apiModel.longitude);
+    return new Restaurant(apiModel.id, apiModel.name, apiModel.localized_name, apiModel.logo_url,
+        apiModel.location.street, apiModel.location.city, apiModel.location.latitude, apiModel.location.longitude);
   }
 
   @Override

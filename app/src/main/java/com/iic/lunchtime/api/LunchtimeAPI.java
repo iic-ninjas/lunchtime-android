@@ -23,10 +23,14 @@ public interface LunchtimeAPI {
       public String name;
       public String localized_name;
       public String logo_url;
-      public String street;
-      public String city;
-      public float latitude;
-      public float longitude;
+      public Location location;
+
+      public static class Location {
+        public String street;
+        public String city;
+        public float latitude;
+        public float longitude;
+      }
     }
 
     public static class Lunch {

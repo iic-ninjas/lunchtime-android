@@ -56,7 +56,7 @@ public class LunchFetcherService extends IntentService {
     LunchtimeDBHelper dbHelper = OpenHelperManager.getHelper(getBaseContext(), LunchtimeDBHelper.class);
 
     try {
-      fetchRestaurnts(dbHelper);
+      fetchRestaurants(dbHelper);
       fetchLunch(intent.getStringExtra(EXTRA_LUNCH_DATE), dbHelper);
     } finally {
       OpenHelperManager.releaseHelper();
@@ -86,7 +86,7 @@ public class LunchFetcherService extends IntentService {
     Log.d(LOG_TAG, "Finished fetching lunch");
   }
 
-  private void fetchRestaurnts(final LunchtimeDBHelper dbHelper) {
+  private void fetchRestaurants(final LunchtimeDBHelper dbHelper) {
     final List<LunchtimeAPI.Models.Restaurant> restaurants = api.getRestaurants();
 
     try {
@@ -104,7 +104,7 @@ public class LunchFetcherService extends IntentService {
         }
       });
     } catch (SQLException e) {
-      Log.e(LOG_TAG, e.getMessage(), e);
+      throw new RuntimeException("Could not import restaurants", e);
     }
   }
 }

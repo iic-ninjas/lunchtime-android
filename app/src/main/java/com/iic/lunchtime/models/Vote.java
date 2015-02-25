@@ -21,6 +21,10 @@ public class Vote {
   @DatabaseField(canBeNull = false, foreign = true)
   private Restaurant restaurant;
 
+  public Vote() {
+    // no-arg ctor for ORMLite
+  }
+
   public Vote(int id, Lunch lunch, User user, Restaurant restaurant) {
     this.id = id;
     this.lunch = lunch;
