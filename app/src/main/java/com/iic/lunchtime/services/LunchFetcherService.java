@@ -67,6 +67,7 @@ public class LunchFetcherService extends IntentService {
     final LunchtimeDBHelper dbHelper = OpenHelperManager.getHelper(getBaseContext(), LunchtimeDBHelper.class);
 
     try {
+      // wrapping in transaction for performance
       TransactionManager.callInTransaction(dbHelper.getConnectionSource(), new Callable<Void>() {
         @Override
         public Void call() throws Exception {
