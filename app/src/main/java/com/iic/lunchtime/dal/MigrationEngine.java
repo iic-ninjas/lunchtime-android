@@ -22,17 +22,21 @@ public class MigrationEngine {
 
   public void migrate(SQLiteDatabase database, int oldVersion, int newVersion) {
     for (int i = oldVersion + 1; i <= newVersion; i++) {
-      String content = readMigrationContent(i);
-      database.execSQL(content);
+      // execSQL can only receive one statement at a time, so readMigrationStatements returns an array of statements
+      String[] statements = readMigrationStatements(i);
+      for (String statement : statements) {
+        database.execSQL(statement);
+      }
     }
   }
 
-  private String readMigrationContent(int dbVersion) {
+  private String[] readMigrationStatements(int dbVersion) {
     InputStreamReader reader = null;
     try {
       String migrationPath = new StringBuilder("migrations/").append(dbVersion).append(".sql").toString();
       reader = new InputStreamReader(context.getAssets().open(migrationPath));
-      return CharStreams.toString(reader);
+      String content = CharStreams.toString(reader).trim();
+      return content.split(";");
     } catch (IOException e) {
       Log.e(LOG_TAG, e.getMessage(), e);
       throw new RuntimeException("Could not read migration for db version: " + dbVersion);
