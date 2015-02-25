@@ -9,11 +9,13 @@ import com.iic.lunchtime.api.LunchtimeAPI;
 import com.iic.lunchtime.dal.LunchtimeDBHelper;
 import com.iic.lunchtime.models.Lunch;
 import com.iic.lunchtime.models.Restaurant;
+import com.iic.lunchtime.serializers.DateDeserializer;
 import com.iic.lunchtime.serializers.RestaurantDeserializer;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.misc.TransactionManager;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import retrofit.RestAdapter;
@@ -43,11 +45,14 @@ public class LunchFetcherService extends IntentService {
   @Override
   protected void onHandleIntent(Intent intent) {
     fetchRestaurnts();
-    fetchLunch(intent.getStringExtra(EXTRA_LUNCH_DATE));
+    //fetchLunch(intent.getStringExtra(EXTRA_LUNCH_DATE));
   }
 
   private void createAPIClient() {
-    Gson gson = new GsonBuilder().registerTypeAdapter(Restaurant.class, new RestaurantDeserializer()).create();
+    Gson gson = new GsonBuilder().
+        registerTypeAdapter(Restaurant.class, new RestaurantDeserializer()).
+        registerTypeAdapter(Date.class, new DateDeserializer()).
+        create();
     RestAdapter restAdapter = new RestAdapter.Builder().
         setEndpoint(LunchtimeAPI.API_BASE).
         setConverter(new GsonConverter(gson)).
@@ -76,6 +81,7 @@ public class LunchFetcherService extends IntentService {
             dao.createIfNotExists(restaurant);
           }
 
+          Log.d(LOG_TAG, "Finished importing " + restaurants.size() + " restaurants");
           return null;
         }
       });

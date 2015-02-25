@@ -16,11 +16,11 @@ public class Restaurant {
   @DatabaseField(canBeNull = false, unique = true)
   private String name;
 
-  @DatabaseField(canBeNull = false)
+  @DatabaseField(columnName = "localized_name", canBeNull = false)
   @SerializedName("localized_name")
   private String localizedName;
 
-  @DatabaseField
+  @DatabaseField(columnName = "logo_url")
   @SerializedName("logo_url")
   private String logoUrl;
 

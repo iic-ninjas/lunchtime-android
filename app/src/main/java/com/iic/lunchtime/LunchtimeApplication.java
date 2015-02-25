@@ -13,6 +13,8 @@ public class LunchtimeApplication extends Application {
   public void onCreate() {
     super.onCreate();
 
-    startService(new Intent(this, LunchFetcherService.class));
+    Intent intent = new Intent(this, LunchFetcherService.class);
+    intent.putExtra(LunchFetcherService.EXTRA_LUNCH_DATE, "today");
+    startService(intent);
   }
 }
