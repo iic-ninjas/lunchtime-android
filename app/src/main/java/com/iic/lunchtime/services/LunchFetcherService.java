@@ -6,8 +6,11 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.iic.lunchtime.api.LunchtimeAPI;
+import com.iic.lunchtime.converters.LunchConverter;
 import com.iic.lunchtime.converters.RestaurantConverter;
+import com.iic.lunchtime.converters.UserConverter;
 import com.iic.lunchtime.dal.LunchtimeDBHelper;
+import com.iic.lunchtime.models.Lunch;
 import com.iic.lunchtime.models.Restaurant;
 import com.iic.lunchtime.serializers.DateDeserializer;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -31,6 +34,8 @@ public class LunchFetcherService extends IntentService {
 
   private static final String SERVICE_NAME = "LunchFetcherService";
 
+  private final UserConverter userConverter;
+
   private LunchtimeAPI api;
 
   private RestaurantConverter restaurantConverter;
@@ -41,17 +46,21 @@ public class LunchFetcherService extends IntentService {
   public LunchFetcherService() {
     super(SERVICE_NAME);
     createAPIClient();
-    createConverters();
+
+    this.restaurantConverter = new RestaurantConverter();
+    this.userConverter = new UserConverter();
   }
 
   @Override
   protected void onHandleIntent(Intent intent) {
-    fetchRestaurnts();
-    fetchLunch(intent.getStringExtra(EXTRA_LUNCH_DATE));
-  }
+    LunchtimeDBHelper dbHelper = OpenHelperManager.getHelper(getBaseContext(), LunchtimeDBHelper.class);
 
-  private void createConverters() {
-    this.restaurantConverter = new RestaurantConverter();
+    try {
+      fetchRestaurnts(dbHelper);
+      fetchLunch(intent.getStringExtra(EXTRA_LUNCH_DATE), dbHelper);
+    } finally {
+      OpenHelperManager.releaseHelper();
+    }
   }
 
   private void createAPIClient() {
@@ -64,16 +73,21 @@ public class LunchFetcherService extends IntentService {
     api = restAdapter.create(LunchtimeAPI.class);
   }
 
-  private void fetchLunch(String date) {
+  private void fetchLunch(String date, LunchtimeDBHelper dbHelper) {
+    RuntimeExceptionDao<Lunch, Integer> lunchDAO = dbHelper.getRuntimeExceptionDao(Lunch.class);
+    RuntimeExceptionDao<Restaurant, Integer> restaurantDAO = dbHelper.getRuntimeExceptionDao(Restaurant.class);
+    LunchConverter converter = new LunchConverter(lunchDAO, restaurantDAO, this.userConverter);
+
     if (date.equals("today")) {
       LunchtimeAPI.Models.Lunch lunch = api.getTodayLunch();
-      Log.d(LOG_TAG, "Finished fetching lunch");
+      lunchDAO.createIfNotExists(converter.toDatabaseModel(lunch));
     }
+
+    Log.d(LOG_TAG, "Finished fetching lunch");
   }
 
-  private void fetchRestaurnts() {
+  private void fetchRestaurnts(final LunchtimeDBHelper dbHelper) {
     final List<LunchtimeAPI.Models.Restaurant> restaurants = api.getRestaurants();
-    final LunchtimeDBHelper dbHelper = OpenHelperManager.getHelper(getBaseContext(), LunchtimeDBHelper.class);
 
     try {
       // wrapping in transaction for performance
@@ -91,8 +105,6 @@ public class LunchFetcherService extends IntentService {
       });
     } catch (SQLException e) {
       Log.e(LOG_TAG, e.getMessage(), e);
-    } finally {
-      OpenHelperManager.releaseHelper();
     }
   }
 }

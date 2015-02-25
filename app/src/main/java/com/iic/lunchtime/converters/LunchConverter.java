@@ -16,15 +16,20 @@ public class LunchConverter implements Converter<LunchtimeAPI.Models.Lunch, Lunc
 
   private final RuntimeExceptionDao<Restaurant, Integer> restaurantDAO;
 
-  public LunchConverter(RuntimeExceptionDao<Lunch, Integer> lunchDAO, RuntimeExceptionDao<Restaurant, Integer> restaurantDAO) {
+  private final UserConverter userConverter;
+
+  public LunchConverter(RuntimeExceptionDao<Lunch, Integer> lunchDAO,
+      RuntimeExceptionDao<Restaurant, Integer> restaurantDAO,
+      UserConverter userConverter) {
     this.lunchDAO = lunchDAO;
     this.restaurantDAO = restaurantDAO;
+    this.userConverter = userConverter;
   }
 
   @Override
   public Lunch toDatabaseModel(LunchtimeAPI.Models.Lunch apiModel) {
     Lunch lunch = new Lunch(apiModel.id, apiModel.date);
-    VoteConverter voteConverter = new VoteConverter(restaurantDAO, lunch);
+    VoteConverter voteConverter = new VoteConverter(lunch, restaurantDAO, userConverter);
 
     ForeignCollection<Vote> votes = lunchDAO.getEmptyForeignCollection("votes");
     for (LunchtimeAPI.Models.Vote vote : apiModel.votes) {

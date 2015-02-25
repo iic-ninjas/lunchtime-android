@@ -18,10 +18,10 @@ public class VoteConverter implements Converter<LunchtimeAPI.Models.Vote, Vote> 
 
   private final UserConverter userConverter;
 
-  public VoteConverter(RuntimeExceptionDao<Restaurant, Integer> restaurantDAO, Lunch lunch) {
+  public VoteConverter(Lunch lunch, RuntimeExceptionDao<Restaurant, Integer> restaurantDAO, UserConverter userConverter) {
     this.restaurantDAO = restaurantDAO;
     this.lunch = lunch;
-    this.userConverter = new UserConverter();
+    this.userConverter = userConverter;
   }
 
   @Override
