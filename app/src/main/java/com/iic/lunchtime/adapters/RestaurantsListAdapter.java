@@ -5,8 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import com.iic.lunchtime.R;
 import com.iic.lunchtime.dal.LunchtimeDBHelper;
 import com.iic.lunchtime.models.Restaurant;
@@ -49,18 +52,21 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> implements 
   @Override
   public View getView(int position, View convertView, ViewGroup parent) {
     Restaurant restaurant = restaurants.get(position);
-    if (convertView == null) {
+
+    ViewHolder holder;
+    if (convertView != null) {
+      holder = (ViewHolder) convertView.getTag();
+    } else {
       convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_restaurant, parent, false);
+      holder = new ViewHolder(convertView);
+      convertView.setTag(holder);
     }
 
-    TextView titleView = (TextView) convertView.findViewById(R.id.list_item_restaurant_title);
-    titleView.setText(restaurant.getName());
-
-    ImageView imageView = (ImageView) convertView.findViewById(R.id.list_item_restaurant_icon);
+    holder.titleView.setText(restaurant.getName());
     Picasso.with(getContext()).
         load(restaurant.getLogoUrl()).
         placeholder(R.drawable.ic_restaurant_logo_default).
-        into(imageView);
+        into(holder.imageView);
 
     return convertView;
   }
@@ -78,5 +84,20 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> implements 
     OpenHelperManager.releaseHelper();
     dao = null;
     dbHelper = null;
+  }
+
+  static class ViewHolder {
+    @InjectView(R.id.list_item_restaurant_title)
+    TextView titleView;
+
+    @InjectView(R.id.list_item_restaurant_icon)
+    ImageView imageView;
+
+    @InjectView(R.id.list_item_restaurant_vote_btn)
+    Button voteButton;
+
+    private ViewHolder(View view) {
+      ButterKnife.inject(this, view);
+    }
   }
 }
