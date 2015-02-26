@@ -13,17 +13,25 @@ import com.iic.lunchtime.models.Restaurant;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.squareup.picasso.Picasso;
+import java.io.Closeable;
 import java.util.List;
 
 /**
  * Created by ifeins on 2/26/15.
  */
-public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
+public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> implements Closeable {
+
+  private RuntimeExceptionDao<Restaurant, ?> dao;
+
+  private LunchtimeDBHelper dbHelper;
 
   private List<Restaurant> restaurants;
 
   public RestaurantsListAdapter(Context context) {
     super(context, R.layout.list_item_restaurant);
+
+    dbHelper = OpenHelperManager.getHelper(getContext(), LunchtimeDBHelper.class);
+    dao = dbHelper.getRuntimeExceptionDao(Restaurant.class);
   }
 
   @Override
@@ -59,15 +67,16 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
 
   private List<Restaurant> getRestaurants() {
     if (restaurants == null) {
-      LunchtimeDBHelper dbHelper = OpenHelperManager.getHelper(getContext(), LunchtimeDBHelper.class);
-      try {
-        RuntimeExceptionDao<Restaurant, ?> dao = dbHelper.getRuntimeExceptionDao(Restaurant.class);
-        restaurants = dao.queryForAll();
-      } finally {
-        OpenHelperManager.releaseHelper();
-      }
+      restaurants = dao.queryForAll();
     }
 
     return restaurants;
+  }
+
+  @Override
+  public void close() {
+    OpenHelperManager.releaseHelper();
+    dao = null;
+    dbHelper = null;
   }
 }

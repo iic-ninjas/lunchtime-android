@@ -42,6 +42,7 @@ public class RestaurantsListFragment extends Fragment {
   @Override
   public void onDestroyView() {
     AppEventBus.getInstance().unregister(this);
+    listAdapter.close();
 
     super.onDestroyView();
   }
