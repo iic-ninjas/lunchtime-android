@@ -5,12 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.iic.lunchtime.R;
 import com.iic.lunchtime.dal.LunchtimeDBHelper;
 import com.iic.lunchtime.models.Restaurant;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.squareup.picasso.Picasso;
 import java.util.List;
 
 /**
@@ -38,6 +40,9 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
 
     TextView titleView = (TextView) convertView.findViewById(R.id.list_item_restaurant_title);
     titleView.setText(restaurant.getName());
+
+    ImageView imageView = (ImageView) convertView.findViewById(R.id.list_item_restaurant_icon);
+    Picasso.with(getContext()).load(restaurant.getLogoUrl()).into(imageView);
 
     return convertView;
   }
