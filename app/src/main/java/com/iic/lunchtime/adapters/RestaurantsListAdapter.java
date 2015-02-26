@@ -49,7 +49,10 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
     titleView.setText(restaurant.getName());
 
     ImageView imageView = (ImageView) convertView.findViewById(R.id.list_item_restaurant_icon);
-    Picasso.with(getContext()).load(restaurant.getLogoUrl()).into(imageView);
+    Picasso.with(getContext()).
+        load(restaurant.getLogoUrl()).
+        placeholder(R.drawable.ic_restaurant_logo_default).
+        into(imageView);
 
     return convertView;
   }
