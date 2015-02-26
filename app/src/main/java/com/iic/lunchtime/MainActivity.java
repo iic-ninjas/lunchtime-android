@@ -8,7 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.ListView;
+import com.iic.lunchtime.adapters.RestaurantsListAdapter;
 import com.iic.lunchtime.events.AppEventBus;
 import com.iic.lunchtime.events.LunchFetchedEvent;
 import com.squareup.otto.Subscribe;
@@ -64,16 +65,14 @@ public class MainActivity extends ActionBarActivity {
     return super.onOptionsItemSelected(item);
   }
 
-  @Subscribe
-  public void onLunchFetched(LunchFetchedEvent event) {
-    Toast toast = Toast.makeText(this, "Fetched lunch for " + event.getDate(), Toast.LENGTH_LONG);
-    toast.show();
-  }
-
   /**
    * A placeholder fragment containing a simple view.
    */
   public static class PlaceholderFragment extends Fragment {
+
+    private ListView listView;
+
+    private RestaurantsListAdapter listAdapter;
 
     public PlaceholderFragment() {
     }
@@ -82,7 +81,16 @@ public class MainActivity extends ActionBarActivity {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
         Bundle savedInstanceState) {
       View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+      listView = (ListView) rootView.findViewById(R.id.listView);
+      listAdapter = new RestaurantsListAdapter(getActivity());
+      listView.setAdapter(listAdapter);
+
       return rootView;
+    }
+
+    @Subscribe
+    public void onLunchFetched(LunchFetchedEvent event) {
+      listAdapter.notifyDataSetChanged();
     }
   }
 }

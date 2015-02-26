@@ -48,4 +48,32 @@ public class Restaurant {
   public Restaurant() {
     // needed for ORMLite
   }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getLocalizedName() {
+    return localizedName;
+  }
+
+  public String getLogoUrl() {
+    return logoUrl;
+  }
+
+  public String getStreet() {
+    return street;
+  }
+
+  public String getCity() {
+    return city;
+  }
+
+  public float getLatitude() {
+    return latitude;
+  }
+
+  public float getLongitude() {
+    return longitude;
+  }
 }
