@@ -8,6 +8,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+import com.iic.lunchtime.events.AppEventBus;
+import com.iic.lunchtime.events.LunchFetchedEvent;
+import com.squareup.otto.Subscribe;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -21,6 +25,21 @@ public class MainActivity extends ActionBarActivity {
           .add(R.id.container, new PlaceholderFragment())
           .commit();
     }
+
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+
+    AppEventBus.getInstance().register(this);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+
+    AppEventBus.getInstance().unregister(this);
   }
 
   @Override
@@ -43,6 +62,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     return super.onOptionsItemSelected(item);
+  }
+
+  @Subscribe
+  public void onLunchFetched(LunchFetchedEvent event) {
+    Toast toast = Toast.makeText(this, "Fetched lunch for " + event.getDate(), Toast.LENGTH_LONG);
+    toast.show();
   }
 
   /**

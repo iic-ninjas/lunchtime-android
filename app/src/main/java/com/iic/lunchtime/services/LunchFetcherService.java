@@ -10,6 +10,8 @@ import com.iic.lunchtime.converters.LunchConverter;
 import com.iic.lunchtime.converters.RestaurantConverter;
 import com.iic.lunchtime.converters.UserConverter;
 import com.iic.lunchtime.dal.LunchtimeDBHelper;
+import com.iic.lunchtime.events.AppEventBus;
+import com.iic.lunchtime.events.LunchFetchedEvent;
 import com.iic.lunchtime.models.Lunch;
 import com.iic.lunchtime.models.Restaurant;
 import com.iic.lunchtime.serializers.DateDeserializer;
@@ -81,6 +83,7 @@ public class LunchFetcherService extends IntentService {
     if (date.equals("today")) {
       LunchtimeAPI.Models.Lunch lunch = api.getTodayLunch();
       lunchDAO.createIfNotExists(converter.toDatabaseModel(lunch));
+      AppEventBus.getInstance().post(new LunchFetchedEvent(date));
     }
 
     Log.d(LOG_TAG, "Finished fetching lunch");
@@ -98,7 +101,6 @@ public class LunchFetcherService extends IntentService {
           for (LunchtimeAPI.Models.Restaurant restaurant : restaurants) {
             dao.createIfNotExists(restaurantConverter.toDatabaseModel(restaurant));
           }
-
           Log.d(LOG_TAG, "Finished importing " + restaurants.size() + " restaurants");
           return null;
         }
