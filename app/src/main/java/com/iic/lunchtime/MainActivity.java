@@ -3,6 +3,7 @@ package com.iic.lunchtime;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,20 +28,6 @@ public class MainActivity extends ActionBarActivity {
           .commit();
     }
 
-  }
-
-  @Override
-  protected void onResume() {
-    super.onResume();
-
-    AppEventBus.getInstance().register(this);
-  }
-
-  @Override
-  protected void onPause() {
-    super.onPause();
-
-    AppEventBus.getInstance().unregister(this);
   }
 
   @Override
@@ -70,6 +57,8 @@ public class MainActivity extends ActionBarActivity {
    */
   public static class PlaceholderFragment extends Fragment {
 
+    private static final String LOG_TAG = PlaceholderFragment.class.getSimpleName();
+
     private ListView listView;
 
     private RestaurantsListAdapter listAdapter;
@@ -85,12 +74,26 @@ public class MainActivity extends ActionBarActivity {
       listAdapter = new RestaurantsListAdapter(getActivity());
       listView.setAdapter(listAdapter);
 
+      AppEventBus.getInstance().register(this);
+
       return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+      AppEventBus.getInstance().unregister(this);
+
+      super.onDestroyView();
     }
 
     @Subscribe
     public void onLunchFetched(LunchFetchedEvent event) {
-      listAdapter.notifyDataSetChanged();
+      if (event != null) {
+        Log.d(LOG_TAG, "onLunchFetched called after data was fetched");
+        listAdapter.notifyDataSetChanged();
+      } else {
+        Log.d(LOG_TAG, "onLunchFetched called before data was fetched");
+      }
     }
   }
 }

@@ -18,6 +18,7 @@ import com.iic.lunchtime.serializers.DateDeserializer;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.misc.TransactionManager;
+import com.squareup.otto.Produce;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +43,9 @@ public class LunchFetcherService extends IntentService {
 
   private RestaurantConverter restaurantConverter;
 
+  private String lastFetchDate;
+
+
   /**
    * Creates an IntentService.  Invoked by your subclass's constructor.
    */
@@ -51,6 +55,18 @@ public class LunchFetcherService extends IntentService {
 
     this.restaurantConverter = new RestaurantConverter();
     this.userConverter = new UserConverter();
+    AppEventBus.getInstance().register(this);
+  }
+
+  @Produce
+  public LunchFetchedEvent produceLunchFetchEvent() {
+    if (lastFetchDate != null) {
+      Log.d(LOG_TAG, "produceLunchFetchEvent called after data was fetched");
+      return new LunchFetchedEvent(lastFetchDate);
+    } else {
+      Log.d(LOG_TAG, "produceLunchFetchEvent called before data was fetched");
+      return null;
+    }
   }
 
   @Override
@@ -83,9 +99,10 @@ public class LunchFetcherService extends IntentService {
     if (date.equals("today")) {
       LunchtimeAPI.Models.Lunch lunch = api.getTodayLunch();
       lunchDAO.createIfNotExists(converter.toDatabaseModel(lunch));
-      AppEventBus.getInstance().post(new LunchFetchedEvent(date));
     }
 
+    lastFetchDate = date;
+    AppEventBus.getInstance().post(new LunchFetchedEvent(lastFetchDate));
     Log.d(LOG_TAG, "Finished fetching lunch");
   }
 
