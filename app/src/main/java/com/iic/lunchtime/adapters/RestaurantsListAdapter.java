@@ -27,6 +27,13 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
   }
 
   @Override
+  public void notifyDataSetChanged() {
+    restaurants = null;
+
+    super.notifyDataSetChanged();
+  }
+
+  @Override
   public int getCount() {
     return getRestaurants().size();
   }
