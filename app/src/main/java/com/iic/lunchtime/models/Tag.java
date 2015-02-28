@@ -12,6 +12,9 @@ public class Tag {
   @DatabaseField(id = true)
   private int id;
 
+  @DatabaseField(columnName = "api_id")
+  private int apiId;
+
   @DatabaseField(canBeNull = false)
   private String name;
 

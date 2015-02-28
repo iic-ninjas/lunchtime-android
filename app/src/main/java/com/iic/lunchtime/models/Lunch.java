@@ -18,11 +18,14 @@ public class Lunch {
   @DatabaseField(id = true)
   private int id;
 
+  @DatabaseField(columnName = "api_id")
+  private int apiId;
+
   @DatabaseField(canBeNull = false)
   private Date date;
 
-  public Lunch(int id, Date date) {
-    this.id = id;
+  public Lunch(int apiId, Date date) {
+    this.apiId = apiId;
     this.date = date;
   }
 

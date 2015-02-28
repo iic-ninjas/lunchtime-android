@@ -12,6 +12,9 @@ public class Restaurant {
   @DatabaseField(id = true)
   private int id;
 
+  @DatabaseField(columnName = "api_id")
+  private int apiId;
+
   @DatabaseField(canBeNull = false, unique = true)
   private String name;
 
@@ -33,9 +36,9 @@ public class Restaurant {
   @DatabaseField(canBeNull = false)
   private float longitude;
 
-  public Restaurant(int id, String name, String localizedName, String logoUrl, String street, String city,
+  public Restaurant(int apiId, String name, String localizedName, String logoUrl, String street, String city,
       float latitude, float longitude) {
-    this.id = id;
+    this.apiId = apiId;
     this.name = name;
     this.localizedName = localizedName;
     this.logoUrl = logoUrl;

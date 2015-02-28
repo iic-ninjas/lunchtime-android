@@ -12,6 +12,9 @@ public class User {
   @DatabaseField(id = true)
   private int id;
 
+  @DatabaseField(columnName = "api_id")
+  private int apiId;
+
   @DatabaseField
   private String firstName;
 
@@ -24,8 +27,8 @@ public class User {
   @DatabaseField
   private String avatarUrl;
 
-  public User(int id, String firstName, String lastName, String email, String avatarUrl) {
-    this.id = id;
+  public User(int apiId, String firstName, String lastName, String email, String avatarUrl) {
+    this.apiId = apiId;
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
