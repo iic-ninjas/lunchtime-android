@@ -9,7 +9,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "votes")
 public class Vote {
 
-  @DatabaseField(id = true)
+  @DatabaseField(generatedId = true)
   private int id;
 
   @DatabaseField(columnName = "api_id")

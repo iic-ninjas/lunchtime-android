@@ -15,7 +15,7 @@ public class Lunch {
   @ForeignCollectionField
   ForeignCollection<Vote> votes;
 
-  @DatabaseField(id = true)
+  @DatabaseField(generatedId = true)
   private int id;
 
   @DatabaseField(columnName = "api_id")
@@ -31,6 +31,14 @@ public class Lunch {
 
   public Lunch() {
     // for ORMLITE
+  }
+
+  public int getApiId() {
+    return apiId;
+  }
+
+  public Date getDate() {
+    return date;
   }
 
   public void setVotes(ForeignCollection<Vote> votes) {

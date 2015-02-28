@@ -1,25 +1,25 @@
 package com.iic.lunchtime.converters;
 
 import com.iic.lunchtime.api.LunchtimeAPI;
+import com.iic.lunchtime.dal.LunchDAO;
+import com.iic.lunchtime.dal.RestaurantDAO;
 import com.iic.lunchtime.models.Lunch;
-import com.iic.lunchtime.models.Restaurant;
 import com.iic.lunchtime.models.Vote;
 import com.j256.ormlite.dao.ForeignCollection;
-import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 /**
  * Created by ifeins on 2/25/15.
  */
 public class LunchConverter implements Converter<LunchtimeAPI.Models.Lunch, Lunch> {
 
-  private final RuntimeExceptionDao<Lunch, Integer> lunchDAO;
+  private final LunchDAO lunchDAO;
 
-  private final RuntimeExceptionDao<Restaurant, Integer> restaurantDAO;
+  private final RestaurantDAO restaurantDAO;
 
   private final UserConverter userConverter;
 
-  public LunchConverter(RuntimeExceptionDao<Lunch, Integer> lunchDAO,
-      RuntimeExceptionDao<Restaurant, Integer> restaurantDAO,
+  public LunchConverter(LunchDAO lunchDAO,
+      RestaurantDAO restaurantDAO,
       UserConverter userConverter) {
     this.lunchDAO = lunchDAO;
     this.restaurantDAO = restaurantDAO;

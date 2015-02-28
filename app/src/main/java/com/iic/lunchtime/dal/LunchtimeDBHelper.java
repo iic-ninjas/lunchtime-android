@@ -3,7 +3,9 @@ package com.iic.lunchtime.dal;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
+import java.sql.SQLException;
 
 /**
  * Created by ifeins on 2/24/15.
@@ -29,5 +31,14 @@ public class LunchtimeDBHelper extends OrmLiteSqliteOpenHelper {
   @Override
   public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
     migrationEngine.migrate(database, oldVersion, newVersion);
+  }
+
+  @Override
+  public <D extends Dao<T, ?>, T> D getDao(Class<T> clazz) {
+    try {
+      return super.getDao(clazz);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

@@ -9,14 +9,15 @@ import com.iic.lunchtime.api.LunchtimeAPI;
 import com.iic.lunchtime.converters.LunchConverter;
 import com.iic.lunchtime.converters.RestaurantConverter;
 import com.iic.lunchtime.converters.UserConverter;
+import com.iic.lunchtime.dal.LunchDAO;
 import com.iic.lunchtime.dal.LunchtimeDBHelper;
+import com.iic.lunchtime.dal.RestaurantDAO;
 import com.iic.lunchtime.events.AppEventBus;
 import com.iic.lunchtime.events.LunchFetchedEvent;
 import com.iic.lunchtime.models.Lunch;
 import com.iic.lunchtime.models.Restaurant;
 import com.iic.lunchtime.serializers.DateDeserializer;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.misc.TransactionManager;
 import com.squareup.otto.Produce;
 import java.sql.SQLException;
@@ -92,13 +93,13 @@ public class LunchFetcherService extends IntentService {
   }
 
   private void fetchLunch(String date, LunchtimeDBHelper dbHelper) {
-    RuntimeExceptionDao<Lunch, Integer> lunchDAO = dbHelper.getRuntimeExceptionDao(Lunch.class);
-    RuntimeExceptionDao<Restaurant, Integer> restaurantDAO = dbHelper.getRuntimeExceptionDao(Restaurant.class);
+    LunchDAO lunchDAO = dbHelper.getDao(Lunch.class);
+    RestaurantDAO restaurantDAO = dbHelper.getDao(Restaurant.class);
     LunchConverter converter = new LunchConverter(lunchDAO, restaurantDAO, this.userConverter);
 
     if (date.equals("today")) {
       LunchtimeAPI.Models.Lunch lunch = api.getTodayLunch();
-      lunchDAO.createIfNotExists(converter.toDatabaseModel(lunch));
+      lunchDAO.createIfNotExistsByDate(converter.toDatabaseModel(lunch));
     }
 
     lastFetchDate = date;
@@ -114,9 +115,9 @@ public class LunchFetcherService extends IntentService {
       TransactionManager.callInTransaction(dbHelper.getConnectionSource(), new Callable<Void>() {
         @Override
         public Void call() throws Exception {
-          RuntimeExceptionDao<Restaurant, ?> dao = dbHelper.getRuntimeExceptionDao(Restaurant.class);
+          RestaurantDAO dao = dbHelper.getDao(Restaurant.class);
           for (LunchtimeAPI.Models.Restaurant restaurant : restaurants) {
-            dao.createIfNotExists(restaurantConverter.toDatabaseModel(restaurant));
+            dao.createIfNotExistByName(restaurantConverter.toDatabaseModel(restaurant));
           }
           Log.d(LOG_TAG, "Finished importing " + restaurants.size() + " restaurants");
           return null;
