@@ -1,5 +1,6 @@
 package com.iic.lunchtime.models;
 
+import com.iic.lunchtime.dal.LunchDAO;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -9,7 +10,7 @@ import java.util.Date;
 /**
  * Created by ifeins on 2/24/15.
  */
-@DatabaseTable(tableName = "lunches")
+@DatabaseTable(tableName = "lunches", daoClass = LunchDAO.class)
 public class Lunch {
 
   @ForeignCollectionField
