@@ -23,7 +23,7 @@ public interface LunchtimeAPI {
   @GET("/lunches/today.json")
   Models.Lunch getTodayLunch();
 
-  @POST("/lunches/{id}/votes")
+  @POST("/lunches/{id}/votes.json")
   Models.Vote createVote(@Path("id") int lunchId, @Body Models.Vote vote);
 
   @POST("/auth/facebook/native_callback")

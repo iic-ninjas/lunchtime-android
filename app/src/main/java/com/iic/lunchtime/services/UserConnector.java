@@ -4,6 +4,8 @@ import com.iic.lunchtime.api.LunchtimeAPI;
 import com.iic.lunchtime.api.LunchtimeAPIManager;
 import com.iic.lunchtime.converters.UserConverter;
 import com.iic.lunchtime.dal.UserDAO;
+import com.iic.lunchtime.events.AppEventBus;
+import com.iic.lunchtime.events.UserLoggedInEvent;
 import com.iic.lunchtime.models.User;
 
 /**
@@ -29,6 +31,8 @@ public class UserConnector {
 
     User user = userDAO.findOrCreateByEmail(userConverter.toDatabaseModel(apiUser));
     setCurrentUser(user);
+
+    AppEventBus.getInstance().post(new UserLoggedInEvent());
 
     return user;
   }
