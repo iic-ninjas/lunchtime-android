@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import bolts.Continuation;
 import bolts.Task;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -17,9 +18,12 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
-import com.iic.lunchtime.api.LunchtimeAPI;
-import com.iic.lunchtime.api.LunchtimeAPIManager;
+import com.iic.lunchtime.converters.UserConverter;
+import com.iic.lunchtime.dal.LunchtimeDBHelper;
+import com.iic.lunchtime.dal.UserDAO;
 import com.iic.lunchtime.models.User;
+import com.iic.lunchtime.services.UserConnector;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 import java.util.concurrent.Callable;
 
 public class OnboardingActivity extends ActionBarActivity {
@@ -67,25 +71,16 @@ public class OnboardingActivity extends ActionBarActivity {
 
     private UiLifecycleHelper facebookLifecycleHelper;
 
+    private UserConnector userConnector;
+
+    private LunchtimeDBHelper dbHelper;
+
     public PlaceholderFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-
-      //PackageInfo info = null;
-      //try {
-      //  info = getActivity().getPackageManager().getPackageInfo("com.iic.lunchtime",
-      //      PackageManager.GET_SIGNATURES);
-      //  for (Signature signature : info.signatures) {
-      //    MessageDigest md = MessageDigest.getInstance("SHA");
-      //    md.update(signature.toByteArray());
-      //    Log.d(LOG_TAG, Base64.encodeToString(md.digest(), Base64.DEFAULT));
-      //  }
-      //} catch (PackageManager.NameNotFoundException|NoSuchAlgorithmException e) {
-      //  e.printStackTrace();
-      //}
 
       facebookLifecycleHelper = new UiLifecycleHelper(getActivity(), new Session.StatusCallback() {
         @Override
@@ -94,6 +89,14 @@ public class OnboardingActivity extends ActionBarActivity {
         }
       });
       facebookLifecycleHelper.onCreate(savedInstanceState);
+
+      createUserConnector();
+    }
+
+    private void createUserConnector() {
+      dbHelper = OpenHelperManager.getHelper(getActivity(), LunchtimeDBHelper.class);
+      UserDAO dao = dbHelper.getDao(User.class);
+      userConnector = new UserConnector(new UserConverter(), dao);
     }
 
     @Override
@@ -113,6 +116,7 @@ public class OnboardingActivity extends ActionBarActivity {
         loginToServer(session);
       } else if (sessionState.isClosed()) {
         Log.d(LOG_TAG, "Logged out from facebook");
+        logout();
       }
     }
 
@@ -138,6 +142,8 @@ public class OnboardingActivity extends ActionBarActivity {
     public void onDestroy() {
       super.onDestroy();
       facebookLifecycleHelper.onDestroy();
+      OpenHelperManager.releaseHelper();
+      dbHelper = null;
     }
 
     @Override
@@ -157,17 +163,20 @@ public class OnboardingActivity extends ActionBarActivity {
       Task.callInBackground(new Callable<User>() {
         @Override
         public User call() throws Exception {
-          LunchtimeAPI.Models.UserLoginParams params = new LunchtimeAPI.Models.UserLoginParams();
-          params.access_token = accessToken;
-          LunchtimeAPI.Models.User user = LunchtimeAPIManager.getInstance().signIn(params);
-          
-
+          return userConnector.signInWithFacebook(accessToken);
+        }
+      }).onSuccess(new Continuation<User, Void>() {
+        @Override
+        public Void then(Task<User> task) throws Exception {
+          Intent intent = new Intent(getActivity(), MainActivity.class);
+          startActivity(intent);
           return null;
         }
       });
+    }
 
-      Intent intent = new Intent(getActivity(), MainActivity.class);
-      startActivity(intent);
+    private void logout() {
+      UserConnector.setCurrentUser(null);
     }
   }
 }

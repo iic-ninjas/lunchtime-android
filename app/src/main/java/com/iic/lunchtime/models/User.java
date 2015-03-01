@@ -1,12 +1,13 @@
 package com.iic.lunchtime.models;
 
+import com.iic.lunchtime.dal.UserDAO;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Created by ifeins on 2/24/15.
  */
-@DatabaseTable(tableName = "users")
+@DatabaseTable(tableName = "users", daoClass = UserDAO.class)
 public class User {
 
   @DatabaseField(generatedId = true)
@@ -39,4 +40,27 @@ public class User {
     // needed for ORMLite
   }
 
+  public int getId() {
+    return id;
+  }
+
+  public int getApiId() {
+    return apiId;
+  }
+
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public String getAvatarUrl() {
+    return avatarUrl;
+  }
 }
