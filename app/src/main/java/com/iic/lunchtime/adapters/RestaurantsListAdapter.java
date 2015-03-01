@@ -10,31 +10,30 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import com.iic.lunchtime.R;
-import com.iic.lunchtime.dal.LunchtimeDBHelper;
+import com.iic.lunchtime.dal.RestaurantDAO;
 import com.iic.lunchtime.models.Restaurant;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.iic.lunchtime.services.VoteUpdater;
 import com.squareup.picasso.Picasso;
-import java.io.Closeable;
 import java.util.List;
 
 /**
  * Created by ifeins on 2/26/15.
  */
-public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> implements Closeable {
+public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
 
-  private RuntimeExceptionDao<Restaurant, ?> dao;
+  private final VoteUpdater voteUpdater;
 
-  private LunchtimeDBHelper dbHelper;
+  private RestaurantDAO dao;
 
   private List<Restaurant> restaurants;
 
-  public RestaurantsListAdapter(Context context) {
+  public RestaurantsListAdapter(Context context, RestaurantDAO dao, VoteUpdater voteUpdater) {
     super(context, R.layout.list_item_restaurant);
 
-    dbHelper = OpenHelperManager.getHelper(getContext(), LunchtimeDBHelper.class);
-    dao = dbHelper.getRuntimeExceptionDao(Restaurant.class);
+    this.voteUpdater = voteUpdater;
+    this.dao = dao;
   }
 
   @Override
@@ -58,10 +57,11 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> implements 
       holder = (ViewHolder) convertView.getTag();
     } else {
       convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_restaurant, parent, false);
-      holder = new ViewHolder(convertView);
+      holder = new ViewHolder(convertView, this);
       convertView.setTag(holder);
     }
 
+    holder.position = position;
     holder.titleView.setText(restaurant.getName());
     Picasso.with(getContext()).
         load(restaurant.getLogoUrl()).
@@ -69,6 +69,11 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> implements 
         into(holder.imageView);
 
     return convertView;
+  }
+
+  public void onRestaurantVoted(int position) {
+    Restaurant restaurant = getItem(position);
+    voteUpdater.vote(restaurant);
   }
 
   private List<Restaurant> getRestaurants() {
@@ -79,14 +84,10 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> implements 
     return restaurants;
   }
 
-  @Override
-  public void close() {
-    OpenHelperManager.releaseHelper();
-    dao = null;
-    dbHelper = null;
-  }
-
   static class ViewHolder {
+
+    private final RestaurantsListAdapter delegate;
+
     @InjectView(R.id.list_item_restaurant_title)
     TextView titleView;
 
@@ -96,8 +97,16 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> implements 
     @InjectView(R.id.list_item_restaurant_vote_btn)
     Button voteButton;
 
-    private ViewHolder(View view) {
+    int position;
+
+    private ViewHolder(View view, RestaurantsListAdapter adapter) {
       ButterKnife.inject(this, view);
+      this.delegate = adapter;
+    }
+
+    @OnClick(R.id.list_item_restaurant_vote_btn)
+    public void onVoteClicked() {
+      this.delegate.onRestaurantVoted(position);
     }
   }
 }

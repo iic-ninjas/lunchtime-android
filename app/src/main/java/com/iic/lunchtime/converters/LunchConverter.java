@@ -31,11 +31,11 @@ public class LunchConverter implements Converter<LunchtimeAPI.Models.Lunch, Lunc
     Lunch lunch = new Lunch(apiModel.id, apiModel.date);
     VoteConverter voteConverter = new VoteConverter(lunch, restaurantDAO, userConverter);
 
-    ForeignCollection<Vote> votes = lunchDAO.getEmptyForeignCollection("votes");
+    lunchDAO.assignEmptyForeignCollection(lunch, "votes");
+    ForeignCollection<Vote> votes = lunch.getVotes();
     for (LunchtimeAPI.Models.Vote vote : apiModel.votes) {
       votes.add(voteConverter.toDatabaseModel(vote));
     }
-    lunch.setVotes(votes);
 
     return lunch;
   }

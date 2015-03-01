@@ -8,8 +8,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import com.iic.lunchtime.adapters.RestaurantsListAdapter;
+import com.iic.lunchtime.converters.UserConverter;
+import com.iic.lunchtime.converters.VoteConverter;
+import com.iic.lunchtime.dal.LunchDAO;
+import com.iic.lunchtime.dal.LunchtimeDBHelper;
+import com.iic.lunchtime.dal.RestaurantDAO;
 import com.iic.lunchtime.events.AppEventBus;
 import com.iic.lunchtime.events.LunchFetchedEvent;
+import com.iic.lunchtime.models.Lunch;
+import com.iic.lunchtime.models.Restaurant;
+import com.iic.lunchtime.services.VoteUpdater;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.squareup.otto.Subscribe;
 
 /**
@@ -23,6 +32,8 @@ public class RestaurantsListFragment extends Fragment {
 
   private RestaurantsListAdapter listAdapter;
 
+  private LunchtimeDBHelper dbHelper;
+
   public RestaurantsListFragment() {
   }
 
@@ -30,8 +41,11 @@ public class RestaurantsListFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+    dbHelper = OpenHelperManager.getHelper(getActivity(), LunchtimeDBHelper.class);
+
     listView = (ListView) rootView.findViewById(R.id.listView);
-    listAdapter = new RestaurantsListAdapter(getActivity());
+    listAdapter = createAdapter();
     listView.setAdapter(listAdapter);
 
     AppEventBus.getInstance().register(this);
@@ -41,9 +55,10 @@ public class RestaurantsListFragment extends Fragment {
 
   @Override
   public void onDestroyView() {
-    AppEventBus.getInstance().unregister(this);
-    listAdapter.close();
+    OpenHelperManager.releaseHelper();
+    dbHelper = null;
 
+    AppEventBus.getInstance().unregister(this);
     super.onDestroyView();
   }
 
@@ -55,5 +70,16 @@ public class RestaurantsListFragment extends Fragment {
     } else {
       Log.d(LOG_TAG, "onLunchFetched called before data was fetched");
     }
+  }
+
+  private RestaurantsListAdapter createAdapter() {
+    RestaurantDAO dao = dbHelper.getDao(Restaurant.class);
+    LunchDAO lunchDAO = dbHelper.getDao(Lunch.class);
+    Lunch lunch = lunchDAO.getTodayLunch();
+    UserConverter userConverter = new UserConverter();
+    VoteConverter voteConverter = new VoteConverter(lunch, dao, userConverter);
+    VoteUpdater voteUpdater = new VoteUpdater(lunch, voteConverter);
+
+    return new RestaurantsListAdapter(getActivity(), dao, voteUpdater);
   }
 }

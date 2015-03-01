@@ -14,7 +14,7 @@ import java.util.Date;
 public class Lunch {
 
   @ForeignCollectionField
-  ForeignCollection<Vote> votes;
+  private ForeignCollection<Vote> votes;
 
   @DatabaseField(generatedId = true)
   private int id;
@@ -40,6 +40,10 @@ public class Lunch {
 
   public Date getDate() {
     return date;
+  }
+
+  public ForeignCollection<Vote> getVotes() {
+    return votes;
   }
 
   public void setVotes(ForeignCollection<Vote> votes) {

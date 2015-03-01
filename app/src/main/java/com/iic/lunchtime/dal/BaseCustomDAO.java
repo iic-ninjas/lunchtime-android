@@ -57,9 +57,27 @@ public class BaseCustomDAO<T, ID> extends BaseDaoImpl<T, ID> {
   }
 
   @Override
+  public void assignEmptyForeignCollection(T parent, String fieldName) {
+    try {
+      super.assignEmptyForeignCollection(parent, fieldName);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
   public T queryForId(ID id) {
     try {
       return super.queryForId(id);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public List<T> queryForAll() {
+    try {
+      return super.queryForAll();
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

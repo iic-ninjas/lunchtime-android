@@ -2,7 +2,10 @@ package com.iic.lunchtime.api;
 
 import java.util.Date;
 import java.util.List;
+import retrofit.http.Body;
 import retrofit.http.GET;
+import retrofit.http.POST;
+import retrofit.http.Path;
 
 /**
  * Created by ifeins on 2/24/15.
@@ -16,6 +19,9 @@ public interface LunchtimeAPI {
 
   @GET("/lunches/today.json")
   Models.Lunch getTodayLunch();
+
+  @POST("/lunches/{id}/votes")
+  Models.Vote createVote(@Path("id") int lunchId, @Body Models.Vote vote);
 
   public static class Models {
     public static class Restaurant {
