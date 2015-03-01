@@ -4,7 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,21 +19,23 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 /**
+ * An adapter for displaying restaurants in a list.
  * Created by ifeins on 2/26/15.
  */
-public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
+public class RestaurantsListAdapter extends BaseAdapter {
+
+  private final Context context;
+
+  private final RestaurantDAO dao;
 
   private final VoteUpdater voteUpdater;
-
-  private RestaurantDAO dao;
 
   private List<Restaurant> restaurants;
 
   public RestaurantsListAdapter(Context context, RestaurantDAO dao, VoteUpdater voteUpdater) {
-    super(context, R.layout.list_item_restaurant);
-
-    this.voteUpdater = voteUpdater;
+    this.context = context;
     this.dao = dao;
+    this.voteUpdater = voteUpdater;
   }
 
   @Override
@@ -49,6 +51,16 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
   }
 
   @Override
+  public Object getItem(int position) {
+    return restaurants.get(position);
+  }
+
+  @Override
+  public long getItemId(int position) {
+    return restaurants.get(position).getId();
+  }
+
+  @Override
   public View getView(int position, View convertView, ViewGroup parent) {
     Restaurant restaurant = restaurants.get(position);
 
@@ -56,14 +68,14 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
     if (convertView != null) {
       holder = (ViewHolder) convertView.getTag();
     } else {
-      convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_restaurant, parent, false);
+      convertView = LayoutInflater.from(context).inflate(R.layout.list_item_restaurant, parent, false);
       holder = new ViewHolder(convertView, this);
       convertView.setTag(holder);
     }
 
     holder.position = position;
     holder.titleView.setText(restaurant.getName());
-    Picasso.with(getContext()).
+    Picasso.with(context).
         load(restaurant.getLogoUrl()).
         placeholder(R.drawable.ic_restaurant_logo_default).
         into(holder.imageView);
@@ -72,7 +84,7 @@ public class RestaurantsListAdapter extends ArrayAdapter<Restaurant> {
   }
 
   public void onRestaurantVoted(int position) {
-    Restaurant restaurant = getItem(position);
+    Restaurant restaurant = restaurants.get(position);
     voteUpdater.vote(restaurant);
   }
 

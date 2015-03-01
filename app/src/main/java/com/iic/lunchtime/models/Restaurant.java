@@ -53,6 +53,10 @@ public class Restaurant {
     // needed for ORMLite
   }
 
+  public int getId() {
+    return id;
+  }
+
   public String getName() {
     return name;
   }
