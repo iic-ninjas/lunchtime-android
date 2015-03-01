@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import bolts.Task;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -17,6 +18,7 @@ import com.iic.lunchtime.models.Restaurant;
 import com.iic.lunchtime.services.VoteUpdater;
 import com.squareup.picasso.Picasso;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * An adapter for displaying restaurants in a list.
@@ -84,8 +86,14 @@ public class RestaurantsListAdapter extends BaseAdapter {
   }
 
   public void onRestaurantVoted(int position) {
-    Restaurant restaurant = restaurants.get(position);
-    voteUpdater.vote(restaurant);
+    final Restaurant restaurant = restaurants.get(position);
+    Task.callInBackground(new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        voteUpdater.vote(restaurant);
+        return null;
+      }
+    });
   }
 
   private List<Restaurant> getRestaurants() {
