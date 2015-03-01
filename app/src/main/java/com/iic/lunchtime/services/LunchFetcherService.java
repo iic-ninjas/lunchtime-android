@@ -3,9 +3,8 @@ package com.iic.lunchtime.services;
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.iic.lunchtime.api.LunchtimeAPI;
+import com.iic.lunchtime.api.LunchtimeAPIManager;
 import com.iic.lunchtime.converters.LunchConverter;
 import com.iic.lunchtime.converters.RestaurantConverter;
 import com.iic.lunchtime.converters.UserConverter;
@@ -16,16 +15,12 @@ import com.iic.lunchtime.events.AppEventBus;
 import com.iic.lunchtime.events.LunchFetchedEvent;
 import com.iic.lunchtime.models.Lunch;
 import com.iic.lunchtime.models.Restaurant;
-import com.iic.lunchtime.serializers.DateDeserializer;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.misc.TransactionManager;
 import com.squareup.otto.Produce;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
-import retrofit.RestAdapter;
-import retrofit.converter.GsonConverter;
 
 /**
  * Created by ifeins on 2/24/15.
@@ -40,8 +35,6 @@ public class LunchFetcherService extends IntentService {
 
   private final UserConverter userConverter;
 
-  private LunchtimeAPI api;
-
   private RestaurantConverter restaurantConverter;
 
   private String lastFetchDate;
@@ -52,7 +45,6 @@ public class LunchFetcherService extends IntentService {
    */
   public LunchFetcherService() {
     super(SERVICE_NAME);
-    createAPIClient();
 
     this.restaurantConverter = new RestaurantConverter();
     this.userConverter = new UserConverter();
@@ -82,23 +74,13 @@ public class LunchFetcherService extends IntentService {
     }
   }
 
-  private void createAPIClient() {
-    Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateDeserializer()).create();
-    RestAdapter restAdapter = new RestAdapter.Builder().
-        setEndpoint(LunchtimeAPI.API_BASE).
-        setConverter(new GsonConverter(gson)).
-        build();
-
-    api = restAdapter.create(LunchtimeAPI.class);
-  }
-
   private void fetchLunch(String date, LunchtimeDBHelper dbHelper) {
     LunchDAO lunchDAO = dbHelper.getDao(Lunch.class);
     RestaurantDAO restaurantDAO = dbHelper.getDao(Restaurant.class);
     LunchConverter converter = new LunchConverter(lunchDAO, restaurantDAO, this.userConverter);
 
     if (date.equals("today")) {
-      LunchtimeAPI.Models.Lunch lunch = api.getTodayLunch();
+      LunchtimeAPI.Models.Lunch lunch = LunchtimeAPIManager.getInstance().getTodayLunch();
       lunchDAO.createIfNotExistsByDate(converter.toDatabaseModel(lunch));
     }
 
@@ -108,7 +90,7 @@ public class LunchFetcherService extends IntentService {
   }
 
   private void fetchRestaurants(final LunchtimeDBHelper dbHelper) {
-    final List<LunchtimeAPI.Models.Restaurant> restaurants = api.getRestaurants();
+    final List<LunchtimeAPI.Models.Restaurant> restaurants = LunchtimeAPIManager.getInstance().getRestaurants();
 
     try {
       // wrapping in transaction for performance
