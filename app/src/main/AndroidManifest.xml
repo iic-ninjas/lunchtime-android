@@ -23,7 +23,7 @@
 
         <activity
             android:name=".OnboardingActivity"
-            android:label="@string/title_activity_onboarding" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

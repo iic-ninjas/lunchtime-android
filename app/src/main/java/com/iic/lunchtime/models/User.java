@@ -16,16 +16,16 @@ public class User {
   @DatabaseField(columnName = "api_id")
   private int apiId;
 
-  @DatabaseField
+  @DatabaseField(columnName = "first_name")
   private String firstName;
 
-  @DatabaseField
+  @DatabaseField(columnName = "last_name")
   private String lastName;
 
   @DatabaseField(unique = true)
   private String email;
 
-  @DatabaseField
+  @DatabaseField(columnName = "avatar_url")
   private String avatarUrl;
 
   public User(int apiId, String firstName, String lastName, String email, String avatarUrl) {

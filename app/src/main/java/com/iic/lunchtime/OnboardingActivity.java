@@ -172,7 +172,7 @@ public class OnboardingActivity extends ActionBarActivity {
           startActivity(intent);
           return null;
         }
-      });
+      }, Task.UI_THREAD_EXECUTOR);
     }
 
     private void logout() {
