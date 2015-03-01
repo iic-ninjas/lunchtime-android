@@ -10,12 +10,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import bolts.Task;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.widget.LoginButton;
+import com.iic.lunchtime.api.LunchtimeAPI;
+import com.iic.lunchtime.api.LunchtimeAPIManager;
+import com.iic.lunchtime.models.User;
+import java.util.concurrent.Callable;
 
 public class OnboardingActivity extends ActionBarActivity {
 
@@ -105,8 +110,7 @@ public class OnboardingActivity extends ActionBarActivity {
     private void onSessionStateChanged(Session session, SessionState sessionState, Exception e) {
       if (sessionState.isOpened()) {
         Log.d(LOG_TAG, "Logged in to facebook");
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        startActivity(intent);
+        loginToServer(session);
       } else if (sessionState.isClosed()) {
         Log.d(LOG_TAG, "Logged out from facebook");
       }
@@ -146,6 +150,24 @@ public class OnboardingActivity extends ActionBarActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
       super.onActivityResult(requestCode, resultCode, data);
       facebookLifecycleHelper.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void loginToServer(Session session) {
+      final String accessToken = session.getAccessToken();
+      Task.callInBackground(new Callable<User>() {
+        @Override
+        public User call() throws Exception {
+          LunchtimeAPI.Models.UserLoginParams params = new LunchtimeAPI.Models.UserLoginParams();
+          params.access_token = accessToken;
+          LunchtimeAPI.Models.User user = LunchtimeAPIManager.getInstance().signIn(params);
+          
+
+          return null;
+        }
+      });
+
+      Intent intent = new Intent(getActivity(), MainActivity.class);
+      startActivity(intent);
     }
   }
 }

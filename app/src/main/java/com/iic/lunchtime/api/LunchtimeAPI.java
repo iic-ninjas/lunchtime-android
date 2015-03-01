@@ -26,6 +26,9 @@ public interface LunchtimeAPI {
   @POST("/lunches/{id}/votes")
   Models.Vote createVote(@Path("id") int lunchId, @Body Models.Vote vote);
 
+  @POST("/auth/facebook/native_callback")
+  Models.User signIn(@Body Models.UserLoginParams params);
+
   public static class Models {
     public static class Restaurant {
       public int id;
@@ -56,10 +59,15 @@ public interface LunchtimeAPI {
       public String avatar_url;
     }
 
+    public static class UserLoginParams {
+      public String access_token;
+    }
+
     public static class Vote {
       public int id;
       public int restaurant_id;
       public User user;
     }
+
   }
 }
