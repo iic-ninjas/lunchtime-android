@@ -12,8 +12,7 @@ import retrofit.http.Path;
  */
 public interface LunchtimeAPI {
 
-  //public static final String API_BASE = "http://iic-lunchtime.herokuapp.com";
-  public static final String API_BASE = "http://4cc3c1b3.ngrok.com";
+  public static final String API_BASE = "http://iic-lunchtime.herokuapp.com";
 
   public static final String USER_HEADER = "X-Lunchtime-User";
 
